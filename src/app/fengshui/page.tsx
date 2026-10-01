@@ -481,6 +481,7 @@ function FengshuiInner() {
         info="fengshui"
         title="玄空飞星"
         subtitle="宅运盘 · 流年流月 · 八宅命卦 · 批流年"
+        actionsFirst
         actions={
           tab === "bazhai" ? (
             <button onClick={() => setShowHouse(true)} className="btn-primary text-sm">

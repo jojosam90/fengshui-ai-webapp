@@ -13,6 +13,7 @@ export default function PageHeader({
   subtitle,
   back = true,
   actions,
+  actionsFirst = false,
   info,
 }: {
   title: string;
@@ -20,6 +21,8 @@ export default function PageHeader({
   back?: boolean;
   /** 桌面端标题右侧的操作区 */
   actions?: React.ReactNode;
+  /** 操作区放在「打开罗盘」左侧 */
+  actionsFirst?: boolean;
   /** 模块说明：标题旁显示 ⓘ，点击展开 */
   info?: keyof typeof MODULE_INFO;
 }) {
@@ -57,7 +60,7 @@ export default function PageHeader({
           </div>
           {subtitle && <p className="truncate text-xs text-muted lg:mt-1 lg:text-sm">{subtitle}</p>}
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className={`flex shrink-0 items-center gap-2 ${actionsFirst ? "flex-row-reverse" : ""}`}>
           <CompassButton />
           {actions && <div className="hidden items-center gap-2 lg:flex">{actions}</div>}
         </div>
