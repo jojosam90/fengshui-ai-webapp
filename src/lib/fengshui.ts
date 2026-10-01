@@ -125,9 +125,31 @@ const GAN = "甲乙丙丁戊己庚辛壬癸";
 const ZHI = "子丑寅卯辰巳午未申酉戌亥";
 const ganZhiOfYear = (y: number) => GAN[(y - 4) % 10] + ZHI[(y - 4) % 12];
 
+/** 方位五行对应的催旺颜色 */
+const DIR_COLORS: Record<Direction, string> = {
+  东: "绿色、青色", 东南: "绿色、青色", 南: "红色、紫色", 西南: "黄色、米色", 东北: "黄色、米色",
+  中: "黄色、米色", 西: "白色、金色", 西北: "白色、金色", 北: "黑色、蓝色",
+};
+
+/** 吉方催旺、凶方化解的摆设建议 */
+const LAYOUT_TIPS: Record<MansionKey, string> = {
+  生气: "摆放绿植或富贵竹，保持光线充足",
+  天医: "放铜葫芦或药箱，保持整洁通风",
+  延年: "挂风铃或摆成双成对的饰物，利人缘感情",
+  伏位: "放书桌或文昌塔，保持安静整洁",
+  祸害: "宜放铜葫芦或金属摆件化解，避免长期久坐此方",
+  五鬼: "宜放黄色陶瓷或水晶化解（土泄火），忌红色与明火",
+  六煞: "宜放绿植泄水气，保持干燥，勿放床位",
+  绝命: "宜放黑曜石或水种植物化解（水泄金），勿作卧室、少停留",
+};
+
+export function layoutTip(key: MansionKey, direction: Direction): string {
+  return MANSIONS[key].luck === "吉" ? `宜用${DIR_COLORS[direction]}装饰，${LAYOUT_TIPS[key]}` : LAYOUT_TIPS[key];
+}
+
 export function mansionsFor(gua: Gua) {
   const table = MANSION_TABLE[gua.number];
-  return (Object.keys(table) as MansionKey[]).map((k) => ({ key: k, direction: table[k], ...MANSIONS[k] }));
+  return (Object.keys(table) as MansionKey[]).map((k) => ({ key: k, direction: table[k], ...MANSIONS[k], tip: layoutTip(k, table[k]) }));
 }
 
 // ---------------- 玄空飞星 · 宅运盘 ----------------

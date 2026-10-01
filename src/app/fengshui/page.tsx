@@ -355,9 +355,8 @@ function LiuNianView() {
   );
 }
 
-function EightMansions() {
+function EightMansions({ showHouse, setShowHouse }: { showHouse: boolean; setShowHouse: (v: boolean) => void }) {
   const [profile, ready] = useProfile();
-  const [showHouse, setShowHouse] = useState(false);
   const [manual, setManual] = useState<{ year: number; gender: Gender } | null>(null);
   const [year, setYear] = useState(1990);
   const [gender, setGender] = useState<Gender>("female");
@@ -396,18 +395,20 @@ function EightMansions() {
   const byDir = Object.fromEntries(list.map((m) => [m.direction, m])) as Record<Direction, (typeof list)[number]>;
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start lg:gap-5">
-      <section className="card flex items-center gap-4 p-3.5 lg:col-span-12">
-        <span className="seal flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl font-serif text-3xl font-bold">{gua.name}</span>
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start lg:gap-4">
+      <section className="card flex items-center gap-3 px-3.5 py-2.5 lg:col-span-12">
+        <span className="seal flex h-12 w-12 shrink-0 items-center justify-center rounded-xl font-serif text-2xl font-bold">{gua.name}</span>
         <div>
-          <p className="text-xs text-muted">{profile && !manual ? `${profile.name ?? "您"}的命卦` : "命卦"}</p>
-          <p className="font-serif text-xl font-bold">{gua.name}卦（{gua.number}） · {gua.group}</p>
+          <p className="font-serif text-lg font-bold">
+            {gua.name}卦（{gua.number}） · {gua.group}
+            <span className="ml-2 font-sans text-xs font-normal text-muted">{profile && !manual ? `${profile.name ?? "您"}的命卦` : "命卦"}</span>
+          </p>
           <p className="text-sm text-muted">宜住坐{gua.sitting}之宅，吉方为{gua.group === "东四命" ? "东、东南、南、北" : "西、西北、西南、东北"}</p>
         </div>
       </section>
 
       <section className="card p-3 lg:col-span-5 lg:p-3.5">
-        <p className="mb-2 text-center text-xs text-muted">上南 · 下北 · 左东 · 右西（按命卦排八方吉凶）</p>
+        <p className="mb-2 text-center text-xs text-muted">上南下北 · 左东右西 · 按命卦排吉凶</p>
         <div className="grid grid-cols-3 gap-1.5">
           {GRID_ORDER.map((dir) => {
             const m = byDir[dir];
@@ -437,19 +438,24 @@ function EightMansions() {
       <div className="flex flex-col items-start gap-3 lg:col-span-7">
       <section className="card grid w-full divide-y divide-line xl:grid-cols-2 xl:divide-y-0">
         {list.map((m) => (
-          <div key={m.key} className="flex gap-3 p-3 xl:border-b xl:border-line">
-            <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white ${m.luck === "吉" ? "bg-good" : "bg-bad"}`}>
+          <div key={m.key} className="flex gap-2.5 px-3 py-2 xl:border-b xl:border-line">
+            <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white ${m.luck === "吉" ? "bg-good" : "bg-bad"}`}>
               {m.luck}
             </span>
-            <div className="text-sm">
+            <div className="text-sm leading-snug">
               <p className="font-semibold">{m.key} · {m.direction}</p>
-              <p className="text-muted">{m.desc}</p>
+              <p className="text-xs text-muted">{m.desc}</p>
               <p className="text-xs text-gold">宜作：{m.use}</p>
+              <p className="text-xs">
+                <b className={m.luck === "吉" ? "text-good" : "text-bad"}>布局建议：</b>
+                {m.tip}
+              </p>
             </div>
           </div>
         ))}
       </section>
-        <button onClick={() => setShowHouse(true)} className="btn-primary px-5 py-2 text-base">
+        {/* 桌面版按钮在页首（罗盘旁），手机版保留在此 */}
+        <button onClick={() => setShowHouse(true)} className="btn-primary px-5 py-2 text-base lg:hidden">
           理想宅设计图
         </button>
       </div>
@@ -468,9 +474,21 @@ function FengshuiInner() {
   const [tab, setTab] = useState<"house" | "stars" | "bazhai" | "liunian">(
     initial === "bazhai" ? "bazhai" : initial === "stars" ? "stars" : initial === "liunian" ? "liunian" : "house",
   );
+  const [showHouse, setShowHouse] = useState(false);
   return (
     <div className="space-y-4 lg:space-y-5">
-      <PageHeader info="fengshui" title="玄空飞星" subtitle="宅运盘 · 流年流月 · 八宅命卦" />
+      <PageHeader
+        info="fengshui"
+        title="玄空飞星"
+        subtitle="宅运盘 · 流年流月 · 八宅命卦 · 批流年"
+        actions={
+          tab === "bazhai" ? (
+            <button onClick={() => setShowHouse(true)} className="btn-primary text-sm">
+              理想宅设计图
+            </button>
+          ) : undefined
+        }
+      />
       <div className="flex gap-5 border-b border-line">
         {([
           ["house", "玄空宅盘"],
@@ -487,7 +505,7 @@ function FengshuiInner() {
           </button>
         ))}
       </div>
-      {tab === "house" ? <HouseChartView initialSit={params.get("sit") ?? undefined} /> : tab === "stars" ? <FlyingStars /> : tab === "bazhai" ? <EightMansions /> : <LiuNianView />}
+      {tab === "house" ? <HouseChartView initialSit={params.get("sit") ?? undefined} /> : tab === "stars" ? <FlyingStars /> : tab === "bazhai" ? <EightMansions showHouse={showHouse} setShowHouse={setShowHouse} /> : <LiuNianView />}
     </div>
   );
 }
