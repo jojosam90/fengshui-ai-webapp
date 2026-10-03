@@ -50,7 +50,7 @@ export interface BaziResult {
   solarText: string;
   lunarText: string;
   shengXiao: string;
-  /** 五行生肖，如「土属蛇」（取生肖年天干五行） */
+  /** 五行生肖，如「木属蛇」（取生肖年干支的纳音五行） */
   shengXiaoWx: string;
   pillars: Pillar[];
   dayMaster: string;
@@ -178,7 +178,8 @@ export function computeBazi(input: BirthInfo): BaziResult {
     lunarText: `农历${lunar.getYearInGanZhi()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}${input.hourUnknown ? "" : ` ${lunar.getTimeZhi()}时`}`,
     // 生肖按民间习惯以农历新年为界；八字年柱则以立春为界（两者在正月初一至立春之间出生时会不同）
     shengXiao: lunar.getYearShengXiao(),
-    shengXiaoWx: `${GAN_WX[lunar.getYearGan()]}属${lunar.getYearShengXiao()}`,
+    // 五行生肖按民间通行的「纳音五行」：如 1989 己巳（大林木）→ 木蛇，1995 乙亥（山头火）→ 火猪
+    shengXiaoWx: `${(LunarUtil.NAYIN[lunar.getYearInGanZhi()] as string).slice(-1)}属${lunar.getYearShengXiao()}`,
     pillars,
     dayMaster: dayGan,
     dayMasterWx: dmWx,
